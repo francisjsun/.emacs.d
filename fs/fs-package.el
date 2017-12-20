@@ -1,4 +1,10 @@
-(provide 'fs-package)
+;;; fs-package.el --- install package iff not installed
+
+;;; Commentary:
+;; 
+
+
+;;; Code:
 
 (require 'package)
 
@@ -9,16 +15,24 @@
 (add-to-list 'package-archives
 	     '("emacs-china-gnu" . "http://elpa.emacs-china.org/gnu/"))
 
-(defconst fs-package-packages
+(defvar fs-package-packages
   '(
-    company
     markdown-mode
     smartparens
+    ace-window
+    company
+    flycheck
     )
-  "packages for installing"
+  "Packages for installing."
   )
+
+(if (eq window-system 'ns)
+    (add-to-list 'fs-package-packages
+		 'exec-path-from-shell)
+    )
+
 (defun fs-package-touch-packages ()
-  "check to install package"
+  "Check to install package."
   (interactive)
   (mapcar
    (lambda (package)
@@ -34,3 +48,7 @@
 
 (fs-package-touch-packages)
 
+
+(provide 'fs-package)
+
+;;; fs-package.el ends here

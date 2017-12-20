@@ -1,3 +1,10 @@
+;;; init.el --- fs emacs init.el
+
+
+;;; Commentary:
+;; 
+
+;;; Code:
 
 (add-to-list 'load-path
 	     (substitute-in-file-name "$HOME/.emacs.d/fs"))
@@ -9,11 +16,10 @@
       (gc-cons-threshold most-positive-fixnum)
       )
   (require 'fs-package)
-
   (require 'fs-misc)
-
   (require 'fs-company)
-  
+  (require 'fs-cc-mode)
+  (require 'fs-flycheck)
   )
 
 ;;;; optimization
@@ -21,10 +27,11 @@
 ;; GC threshold
 (defconst fs-init-gc-cons-threshold-default
   gc-cons-threshold
-  "default GC threashold value")
+  "Default GC threashold value.")
 
+;; see http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold
 (defun fs-init-gc-cons-threshold-tweaks (ismax)
-  "see http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/"
+  "Argument ISMAX if going to set gc-cons-threashold to max."
   (if ismax
       (setq gc-cons-threshold most-positive-fixnum)
     (setq gc-cons-threshold fs-init-gc-cons-threshold-default)
@@ -39,3 +46,5 @@
 	    (fs-init-gc-cons-threshold-tweaks nil)))
 
 ;;(emacs-init-time)
+
+;;; init.el ends here
