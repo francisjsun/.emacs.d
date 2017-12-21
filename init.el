@@ -1,11 +1,60 @@
 ;;; init.el --- fs emacs init.el
 
-
 ;;; Commentary:
+;; run Emacs with arg --fs-init when first time for dependencies setup
 ;; 
 
 ;;; Code:
 
+;; Setup emacs dependencies
+
+;; run sudo command
+(defun fs-sudo-shell-command (cmd)
+  "Run sudo command.
+Argument CMD shell cmd"
+  (interactive "scmd:")
+  (shell-command (concat "echo "
+			 (read-passwd "sudo password:")
+			 " | sudo -S " cmd)))
+
+(defun fs-init-setup ()
+  "Init setup."
+  (fs-sudo-shell-command
+   (substitute-in-file-name "$HOME/.emacs.d/fs/setup.sh")))
+
+;; removed because this hook function will be called after init.el done,
+;; and this is not what I want
+;; (setq command-switch-alist
+;;       '(("-fs-init" . fs-init-setup)))
+
+(defconst fs-init-fs-option-alist
+  '(
+    ("--fs-init" fs-init-setup)
+    )
+  "My custom command line args option.")
+
+
+(defun fs-init-fs-option ()
+  "Processing --fs-* custom options."
+  (let ((idx 0)
+	(lstLen (safe-length fs-init-fs-option-alist)))
+    ;; iterate through fs-init-fs-option-alist
+    (while (< idx lstLen)
+      (let* ((fs-opt (nth idx fs-init-fs-option-alist))
+	     (fs-opt-name (car fs-opt))
+	     (fs-opt-cb (car-safe (cdr-safe fs-opt))))
+	(message "init%s, %s, %s" fs-opt fs-opt-name fs-opt-cb)
+	(if (and fs-opt-cb (member fs-opt-name command-line-args))
+	    ;; if callback is not nill and a opt is given
+	    (progn
+	      ;; delete from command-line-args
+	      (delete fs-opt-name command-line-args)
+	      (funcall fs-opt-cb))))
+      (setq idx (1+ idx)))))
+
+(fs-init-fs-option)
+
+;;; normal init.el begins here
 (add-to-list 'load-path
 	     (substitute-in-file-name "$HOME/.emacs.d/fs"))
 

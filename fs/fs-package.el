@@ -20,8 +20,9 @@
     markdown-mode
     smartparens
     ace-window
-    company
     flycheck
+    company
+    company-c-headers
     )
   "Packages for installing."
   )

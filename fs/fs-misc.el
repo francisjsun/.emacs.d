@@ -29,7 +29,7 @@
 (smartparens-global-mode)
 
 ;; ace-window
-(global-set-key (kbd "M-p") 'ace-window)
+(global-set-key (kbd "C-o") 'ace-window)
 
 ;; color
 (set-background-color "black")
