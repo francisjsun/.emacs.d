@@ -15,7 +15,8 @@ Argument CMD shell cmd"
   (interactive "scmd:")
   (shell-command (concat "echo "
 			 (read-passwd "sudo password:")
-			 " | sudo -S " cmd)))
+			 " | sudo -S " cmd)
+		 "fs-sudo-shell-command-output"))
 
 (defun fs-init-setup ()
   "Init setup."
@@ -43,7 +44,6 @@ Argument CMD shell cmd"
       (let* ((fs-opt (nth idx fs-init-fs-option-alist))
 	     (fs-opt-name (car fs-opt))
 	     (fs-opt-cb (car-safe (cdr-safe fs-opt))))
-	(message "init%s, %s, %s" fs-opt fs-opt-name fs-opt-cb)
 	(if (and fs-opt-cb (member fs-opt-name command-line-args))
 	    ;; if callback is not nill and a opt is given
 	    (progn

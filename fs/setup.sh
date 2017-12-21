@@ -1,30 +1,33 @@
 #!/bin/bash
 
-echo "emacs seting up..."
+echo "emacs dependencies seting up..."
 
 if [ "$EUID" -ne 0 ]
 then
     echo "should run as root"
+    exit 1
 fi
 
-function fs_apt_get()
-{
-    echo "**** installing $1 ****"
 
-    checkName=$1
-    if [ -z "$2" ]
-    then
-	checkName=$2
-    fi
+fs_terminal=0
 
-    if ! command -v $checkName 1>/dev/null
-    then
-	printf "y\n" | apt-get install $1
-    fi
+echo "finding available terminal"
+if command -v gnome-terminal 1>/dev/null
+then
+    fs_terminal=gnome-terminal
+fi
 
-    echo "**** $1 installed ****"
-}
+if command -v xterm 1>/dev/null
+then
+    fs_terminal=xterm
+fi
 
-fs_apt_get clang
+if command -v $fs_terminal 1>/dev/null
+then
+    $fs_terminal -e ~/.emacs.d/fs/setup-main.sh
+else
+    echo "no available terminal found"
+    exit 1
+fi
 
 echo "emacs dependencies setted done"

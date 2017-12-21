@@ -23,6 +23,7 @@
     flycheck
     company
     company-c-headers
+    ggtags
     )
   "Packages for installing."
   )
