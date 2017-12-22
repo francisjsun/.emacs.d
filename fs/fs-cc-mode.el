@@ -77,7 +77,6 @@ Argument SYS-PATH new system path."
 ;; code complete
 (require 'company-clang)
 (require 'company-c-headers)
-(require 'ggtags)
 (defun fs-cc-mode-init ()
   "Init."
   ;; coding style
@@ -94,7 +93,7 @@ Argument SYS-PATH new system path."
   (flycheck-select-checker 'c/c++-clang)
 
   ;; gtags
-  (ggtags-mode 1)
+  (require 'fs-ggtags)
 
   ;; first refresh
   (fs-cc-mode-refresh))

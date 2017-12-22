@@ -20,4 +20,21 @@ function fs_apt_get
 
 fs_apt_get clang
 
-fs_apt_get global
+# removed because debian's distibute is too old
+# see this issue of ggtags
+# https://github.com/leoliu/ggtags/issues/31
+# fs_apt_get global
+
+# build global 6.6.1 from source
+if ! command -v global 1>/dev/null
+then
+    echo "**** installing global-6.6.1 ****"
+    wget http://tamacom.com/global/global-6.6.1.tar.gz
+    tar -xzvf global-6.6.1.tar.gz
+    cd global-6.6.1
+    ./configure
+    make
+    make install
+    echo "**** global-6.6.1 installed ****"
+fi
+
