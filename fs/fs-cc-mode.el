@@ -31,7 +31,9 @@
 
 (defvar fs-cc-mode-additional-cxx-flags
   '(
-    "-std=c++11")
+    "-std=c++11"
+    "-Wno-pragma-once-outside-header"	;remove warning: pragma once in main file
+    )
   "Additional cxx flags.")
 
 (defvar fs-cc-mode-compiler-flags
@@ -61,20 +63,13 @@ And then set into company-clang-arguments and flycheck-clang-args"
   (setq company-c-headers-path-system
 	(append fs-cc-mode-gcc-sys-include-path fs-cc-mode-addtional-sys-include-path)))
 
-
+;; refresh
 (defun fs-cc-mode-refresh ()
   "Refresh compiler flags and company-c-headers-path-*."
   (fs-cc-mode-refresh-compiler-flags)
   (fs-cc-mode-refresh-company-c-headers-path))
 
-(defun fs-cc-mode-add-sys-include-path (sys-path)
-  "Adding system include path.
-Argument SYS-PATH new system path."
-  (interactive "Dnew system include path:")
-  (add-to-list 'fs-cc-mode-addtional-sys-include-path sys-path)
-  (fs-cc-mode-refresh))
-
-;; code complete
+;; init
 (require 'company-clang)
 (require 'company-c-headers)
 (defun fs-cc-mode-init ()
@@ -100,6 +95,35 @@ Argument SYS-PATH new system path."
 
 (add-hook 'c-mode-common-hook
 	  'fs-cc-mode-init)
+
+;; interactive utils
+(defun fs-cc-mode-add-sys-include-path (sys-path)
+  "Adding system include path.
+Argument SYS-PATH new system path."
+  (interactive "Dnew system include path:")
+  (add-to-list 'fs-cc-mode-addtional-sys-include-path sys-path)
+  (fs-cc-mode-refresh))
+
+(defconst fs-cc-mode-header-template
+  "#pragma once
+
+class %s
+{
+
+};")
+
+(defconst fs-cc-mode-cpp-template
+  "#include \"%s.h\"")
+
+(defun fs-cc-mode-create-class (CLASS-NAME PATH)
+  "Create a .h and .cpp files cooresponding to CLASS-NAME in PATH."
+  (interactive "sclass-name:\nDpath:")
+  (let ((header-template (format fs-cc-mode-header-template CLASS-NAME))
+	(cpp-template (format fs-cc-mode-cpp-template CLASS-NAME))
+	(file-name (concat PATH "/" CLASS-NAME ".")))
+    (write-region cpp-template nil (concat file-name "cpp") nil nil nil t)
+    (write-region header-template nil (concat file-name "h") nil nil nil t)
+    (find-file (concat file-name "h"))))
 
 (provide 'fs-cc-mode)
 

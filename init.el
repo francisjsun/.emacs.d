@@ -44,12 +44,11 @@ Argument CMD shell cmd"
       (let* ((fs-opt (nth idx fs-init-fs-option-alist))
 	     (fs-opt-name (car fs-opt))
 	     (fs-opt-cb (car-safe (cdr-safe fs-opt))))
-	(if (and fs-opt-cb (member fs-opt-name command-line-args))
+	(when (and fs-opt-cb (member fs-opt-name command-line-args))
 	    ;; if callback is not nill and a opt is given
-	    (progn
 	      ;; delete from command-line-args
 	      (delete fs-opt-name command-line-args)
-	      (funcall fs-opt-cb))))
+	      (funcall fs-opt-cb)))
       (setq idx (1+ idx)))))
 
 (fs-init-fs-option)

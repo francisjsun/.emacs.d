@@ -20,6 +20,7 @@
     markdown-mode
     smartparens
     ace-window
+    rainbow-delimiters
     flycheck
     company
     company-c-headers
@@ -28,10 +29,10 @@
   "Packages for installing."
   )
 
-(if (eq window-system 'ns)
+(when (eq window-system 'ns)
     (add-to-list 'fs-package-packages
-		 'exec-path-from-shell)
-    )
+		 'exec-path-from-shell))
+
 
 (defun fs-package-touch-packages ()
   "Check to install package."
