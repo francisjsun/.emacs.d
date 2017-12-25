@@ -24,7 +24,10 @@
     flycheck
     company
     company-c-headers
-    ggtags
+    ;; ggtags
+    ;; rtags
+    ;; flycheck-rtags
+    lua-mode
     )
   "Packages for installing."
   )

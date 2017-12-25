@@ -88,8 +88,8 @@ And then set into company-clang-arguments and flycheck-clang-args"
   (flycheck-select-checker 'c/c++-clang)
 
   ;; gtags
-  (require 'fs-ggtags)
-
+  ;; (require 'fs-ggtags)
+  
   ;; first refresh
   (fs-cc-mode-refresh))
 

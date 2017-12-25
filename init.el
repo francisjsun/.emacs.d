@@ -68,6 +68,7 @@ Argument CMD shell cmd"
   (require 'fs-company)
   (require 'fs-cc-mode)
   (require 'fs-flycheck)
+  (require 'fs-lua)
   )
 
 ;;;; optimization
