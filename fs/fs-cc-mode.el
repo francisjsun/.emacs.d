@@ -127,4 +127,5 @@ class %s
 
 (provide 'fs-cc-mode)
 
+(require 'fs-gdb)
 ;;; fs-cc-mode.el ends here

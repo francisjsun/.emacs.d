@@ -11,6 +11,7 @@
 (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
 (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
 
+(setq lua-default-application "/usr/local/lua/lua")
 (provide 'fs-lua)
 
 ;;; fs-lua.el ends here
