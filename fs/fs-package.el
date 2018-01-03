@@ -27,6 +27,7 @@
     ;; ggtags
     ;; rtags
     ;; flycheck-rtags
+    cmake-mode
     lua-mode
     )
   "Packages for installing."
