@@ -11,17 +11,15 @@
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
 ;; gcc system include path
+(defvar fs-cc-mode-gcc-sys-include-path)
 ;; g++ -E -x c++ - -v
-(defconst fs-cc-mode-gcc-sys-include-path
-  '("/usr/include/c++/5"
-    "/usr/include/x86_64-linux-gnu/c++/5"
-    "/usr/include/c++/5/backward"
-    "/usr/lib/gcc/x86_64-linux-gnu/5/include"
-    "/usr/local/include"
-    "/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"
-    "/usr/include/x86_64-linux-gnu"
-    "/usr/include"
-    ))
+(let ((g++-output) (sys-include-path))
+  (setq g++-output (shell-command-to-string "g++ -E -x c++ - -v"))
+  (string-match "#include <\\.\\.\\.> search starts here:
+\\(\\( .+\n\\)+\\)End of search list." g++-output)
+  (setq sys-include-path (match-string 1 g++-output))
+  (setq fs-cc-mode-gcc-sys-include-path (split-string sys-include-path "\n"))
+  )
 
 (defvar fs-cc-mode-addtional-sys-include-path
   '(
