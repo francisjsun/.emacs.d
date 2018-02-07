@@ -2,12 +2,26 @@
 
 echo "emacs dependencies seting up..."
 
+unameOut=$(uname -s)
+if [[ "$unameOut" == "Darwin"* ]]
+then
+    setup_dir=$(dirname "$0")
+    open -a Terminal $setup_dir/setup-darwin.sh 
+    exit 0
+fi
+
 if [ "$EUID" -ne 0 ]
 then
     echo "should run as root"
     exit 1
 fi
 
+unameOut=$(uname -s)
+
+case $unameOut in
+    Darwin*) echo "mac" ;;
+    Linux*) echo "linux" ;;
+esac
 
 fs_terminal=0
 
