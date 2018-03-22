@@ -74,8 +74,8 @@ Argument CMD shell cmd"
   (require 'fs-misc)
   (require 'fs-company)
   (require 'fs-cc-mode)
-  (require 'fs-flycheck)
   (require 'fs-lua)
+  (require 'fs-glsl)
   )
 
 ;;;; optimization
@@ -111,7 +111,7 @@ Argument CMD shell cmd"
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (lua-mode company-c-headers company flycheck rainbow-delimiters ace-window smartparens markdown-mode))))
+    (company-glsl glsl-mode lua-mode company-c-headers company flycheck rainbow-delimiters ace-window smartparens markdown-mode))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

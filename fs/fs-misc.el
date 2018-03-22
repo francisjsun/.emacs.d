@@ -5,6 +5,10 @@
 
 ;;; Code:
 
+;; adding flycheck to elisp-mode
+(add-hook 'emacs-lisp-mode-hook (lambda ()
+				  (flycheck-mode)))
+
 ;; cursor setup
 (add-hook 'prog-mode-hook (lambda ()
 			    (setq cursor-type 'hbar)

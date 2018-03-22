@@ -70,29 +70,45 @@ And then set into company-clang-arguments and flycheck-clang-args"
 ;; init
 (require 'company-clang)
 (require 'company-c-headers)
+
+(defconst fs-cc-mode-name
+  '("c-mode"
+    "c++-mode"
+    ))
+
+(defun fs-cc-mode-is-my-mode ()
+  "Return t if 'major-mode' is on of my 'mode-name' else return nil."
+  (catch 'ret
+    (dolist (m fs-cc-mode-name)
+      (when (string-equal major-mode m)
+	(throw 'ret t)))
+    (throw 'ret nil)))
+
 (defun fs-cc-mode-init ()
   "Init."
-  ;; coding style
-  (setq c-default-style "linux"
-	c-basic-offset 4)
+  (when (fs-cc-mode-is-my-mode)
+    ;; coding style
+    (setq c-default-style "linux"
+	  c-basic-offset 4)
 
-  ;; ff-find-other-file
-  (local-set-key (kbd "C-x C-o") 'ff-find-other-file)
-  
-  ;; company setup
-  (add-to-list 'company-backends 'company-c-headers)
+    ;; ff-find-other-file
+    (local-set-key (kbd "C-x C-o") 'ff-find-other-file)
+    
+    ;; company setup
+    (add-to-list 'company-backends 'company-c-headers)
 
-  ;; flycheck setup
-  (flycheck-select-checker 'c/c++-clang)
+    ;; flycheck setup
+    (flycheck-mode)
+    (flycheck-select-checker 'c/c++-clang)
 
-  ;; gtags
-  ;; (require 'fs-ggtags)
-  
-  ;; first refresh
-  (fs-cc-mode-refresh))
+    ;; gtags
+    ;; (require 'fs-ggtags)
+    
+    ;; first refresh
+    (fs-cc-mode-refresh)))
 
-(add-hook 'c-mode-common-hook
-	  'fs-cc-mode-init)
+(add-hook 'c++-mode-hook 'fs-cc-mode-init)
+(add-hook 'c-mode-hook 'fs-cc-mode-init)
 
 ;; interactive utils
 (defun fs-cc-mode-add-sys-include-path (sys-path)

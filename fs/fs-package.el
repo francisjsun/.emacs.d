@@ -29,6 +29,8 @@
     ;; flycheck-rtags
     cmake-mode
     lua-mode
+    glsl-mode
+    ;; company-glsl
     )
   "Packages for installing."
   )
