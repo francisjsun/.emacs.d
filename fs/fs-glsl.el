@@ -4,7 +4,7 @@
 ;; 
 
 ;;; Code:
-(require 'company-glsl)
+;; (require 'company-glsl)
 
 ;; (add-hook 'glsl-mode-hook (lambda ()
 ;; 			    (add-to-list 'company-backends 'company-glsl)))

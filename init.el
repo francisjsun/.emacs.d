@@ -27,6 +27,7 @@ Argument CMD shell cmd"
 
 (defun fs-init-setup ()
   "Init setup."
+  (interactive)
   (fs-sudo-shell-command
    (substitute-in-file-name "$HOME/.emacs.d/fs/setup.sh")))
 
@@ -111,7 +112,7 @@ Argument CMD shell cmd"
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (company-glsl glsl-mode lua-mode company-c-headers company flycheck rainbow-delimiters ace-window smartparens markdown-mode))))
+    (glsl-mode lua-mode company-c-headers company flycheck rainbow-delimiters ace-window smartparens markdown-mode))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
