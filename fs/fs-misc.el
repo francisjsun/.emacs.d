@@ -43,6 +43,8 @@
 (set-background-color "black")
 (set-foreground-color "white")
 
+(setq frame-background-mode 'dark)
+
 ;; rainbow-delimiters
 (require 'rainbow-delimiters)
 (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
@@ -52,15 +54,15 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
 
- '(rainbow-delimiters-depth-1-face ((t (:foreground "blue"))))
+ '(rainbow-delimiters-depth-1-face ((t (:foreground "cyan"))))
  '(rainbow-delimiters-depth-2-face ((t (:foreground "white"))))
- '(rainbow-delimiters-depth-3-face ((t (:foreground "green"))))
- '(rainbow-delimiters-depth-4-face ((t (:foreground "blue"))))
+ '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
+ '(rainbow-delimiters-depth-4-face ((t (:foreground "cyan"))))
  '(rainbow-delimiters-depth-5-face ((t (:foreground "white"))))
- '(rainbow-delimiters-depth-6-face ((t (:foreground "green"))))
- '(rainbow-delimiters-depth-7-face ((t (:foreground "blue"))))
+ '(rainbow-delimiters-depth-6-face ((t (:foreground "yellow"))))
+ '(rainbow-delimiters-depth-7-face ((t (:foreground "cyan"))))
  '(rainbow-delimiters-depth-2-face ((t (:foreground "white"))))
- '(rainbow-delimiters-depth-3-face ((t (:foreground "green"))))
+ '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
  '(rainbow-delimiters-unmatched-face ((t (:foreground "red"))))
  '(rainbow-delimiters-mismatched-face ((t (:foreground "red"))))
  )
