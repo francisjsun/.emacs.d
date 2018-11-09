@@ -77,6 +77,7 @@ Argument CMD shell cmd"
   (require 'fs-cc-mode)
   (require 'fs-lua)
   (require 'fs-glsl)
+  (require 'fs-org)
   )
 
 ;;;; optimization
@@ -112,4 +113,18 @@ Argument CMD shell cmd"
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (glsl-mode lua-mode company-c-headers company flycheck rainbow-delimiters ace-window smartparens markdown-mode))))
+    (htmlize glsl-mode lua-mode company-c-headers company flycheck rainbow-delimiters ace-window smartparens markdown-mode))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(rainbow-delimiters-depth-1-face ((t (:foreground "cyan"))))
+ '(rainbow-delimiters-depth-2-face ((t (:foreground "white"))))
+ '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
+ '(rainbow-delimiters-depth-4-face ((t (:foreground "cyan"))))
+ '(rainbow-delimiters-depth-5-face ((t (:foreground "white"))))
+ '(rainbow-delimiters-depth-6-face ((t (:foreground "yellow"))))
+ '(rainbow-delimiters-depth-7-face ((t (:foreground "cyan"))))
+ '(rainbow-delimiters-mismatched-face ((t (:foreground "red"))))
+ '(rainbow-delimiters-unmatched-face ((t (:foreground "red")))))
