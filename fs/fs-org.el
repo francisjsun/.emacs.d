@@ -8,7 +8,6 @@
 
 ;;; Code:
 
-(setq org-startup-indented t)
 (setq org-html-validation-link nil)
 
 (provide 'fs-org)
