@@ -88,9 +88,9 @@ And then set into company-clang-arguments and flycheck-clang-args"
   "Init."
   (when (fs-cc-mode-is-my-mode)
     ;; coding style
-    (setq c-default-style "linux"
-	  c-basic-offset 4)
-
+    (c-set-style "linux")
+    (setq c-basic-offset 4)
+    
     ;; ff-find-other-file
     (local-set-key (kbd "C-x C-o") 'ff-find-other-file)
     
@@ -107,8 +107,7 @@ And then set into company-clang-arguments and flycheck-clang-args"
     ;; first refresh
     (fs-cc-mode-refresh)))
 
-(add-hook 'c++-mode-hook 'fs-cc-mode-init)
-(add-hook 'c-mode-hook 'fs-cc-mode-init)
+(add-hook 'c-mode-common-hook 'fs-cc-mode-init)
 
 ;; interactive utils
 (defun fs-cc-mode-add-sys-include-path (sys-path)
@@ -119,7 +118,11 @@ Argument SYS-PATH new system path."
   (fs-cc-mode-refresh))
 
 (defconst fs-cc-mode-header-template
-  "#pragma once
+  "/*
+ *Copyright (c) %s, F.S.. All rights reserved.
+ */
+
+#pragma once
 
 class %s
 {
@@ -127,12 +130,12 @@ class %s
 };")
 
 (defconst fs-cc-mode-cpp-template
-  "#include \"%s.h\"")
+"#include \"%s.h\"")
 
 (defun fs-cc-mode-create-class (CLASS-NAME PATH)
   "Create a .h and .cpp files cooresponding to CLASS-NAME in PATH."
   (interactive "sclass-name:\nDpath:")
-  (let ((header-template (format fs-cc-mode-header-template CLASS-NAME))
+  (let ((header-template (format fs-cc-mode-header-template (format-time-string "%Y" (current-time)) CLASS-NAME))
 	(cpp-template (format fs-cc-mode-cpp-template CLASS-NAME))
 	(file-name (concat PATH "/" CLASS-NAME ".")))
     (write-region cpp-template nil (concat file-name "cpp") nil nil nil t)

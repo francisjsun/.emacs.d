@@ -5,6 +5,9 @@
 
 ;;; Code:
 
+;; indentation setup
+(setq-default indent-tabs-mode nil)
+(setq tab-width 4)
 ;; adding flycheck to elisp-mode
 (add-hook 'emacs-lisp-mode-hook (lambda ()
 				  (flycheck-mode)))
