@@ -117,17 +117,26 @@ Argument SYS-PATH new system path."
   (add-to-list 'fs-cc-mode-addtional-sys-include-path sys-path)
   (fs-cc-mode-refresh))
 
-(defconst fs-cc-mode-header-template
+(defconst fs-cc-mode-license-header-template
   "/*
- *Copyright (c) %s, F.S.. All rights reserved.
- */
+* Copyright (c) %s, FS.S.. All rights reserved.
+*/
 
-#pragma once
+")
+
+(defconst fs-cc-mode-license-header
+  (format fs-cc-mode-license-header-template
+          (format-time-string "%Y" (current-time))))
+
+;; class template
+(defconst fs-cc-mode-header-template
+  (concat fs-cc-mode-license-header
+          "#pragma once
 
 class %s
 {
 
-};")
+};"))
 
 (defconst fs-cc-mode-cpp-template
 "#include \"%s.h\"")
@@ -135,12 +144,27 @@ class %s
 (defun fs-cc-mode-create-class (CLASS-NAME PATH)
   "Create a .h and .cpp files cooresponding to CLASS-NAME in PATH."
   (interactive "sclass-name:\nDpath:")
-  (let ((header-template (format fs-cc-mode-header-template (format-time-string "%Y" (current-time)) CLASS-NAME))
+  (let ((header-template (format fs-cc-mode-header-template CLASS-NAME))
 	(cpp-template (format fs-cc-mode-cpp-template CLASS-NAME))
 	(file-name (concat PATH "/" CLASS-NAME ".")))
     (write-region cpp-template nil (concat file-name "cpp") nil nil nil t)
     (write-region header-template nil (concat file-name "h") nil nil nil t)
     (find-file (concat file-name "h"))))
+
+
+;; single header template
+(defconst fs-cc-mode-single-header-template
+  (concat fs-cc-mode-license-header
+          "#pragma once"))
+
+(defun fs-cc-mode-create-single-header (HEADER-NAME PATH)
+  "Create a .h file cooresponding to HEADER-NAME in PATH."
+  (interactive "sheader-name:\nDpath:")
+  (let ((header-template fs-cc-mode-single-header-template)
+        (file-name (concat PATH "/" HEADER-NAME ".h")))
+    (write-region header-template nil file-name nil nil nil t)
+    (find-file file-name)
+    ))
 
 (provide 'fs-cc-mode)
 
