@@ -119,7 +119,7 @@ Argument SYS-PATH new system path."
 
 (defconst fs-cc-mode-license-header-template
   "/*
-* Copyright (c) %s, FS.S.. All rights reserved.
+* Copyright (c) %s, F.S.. All rights reserved.
 */
 
 ")
