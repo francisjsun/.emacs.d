@@ -21,7 +21,7 @@
   (setq fs-cc-mode-gcc-sys-include-path (split-string sys-include-path "\n"))
   )
 
-(defvar fs-cc-mode-addtional-sys-include-path
+(defvar fs-cc-mode-additional-sys-include-path
   '(
     "/usr/local"
     )
@@ -43,7 +43,7 @@
 (defun fs-cc-mode-refresh-compiler-flags ()
   "Evaluate compiler flags from include path& cxx flags.
 And then set into company-clang-arguments and flycheck-clang-args"
-  (let* ((include-path-flags (copy-tree fs-cc-mode-addtional-sys-include-path))
+  (let* ((include-path-flags (copy-tree fs-cc-mode-additional-sys-include-path))
 	(idx 0)
 	(lstLen (safe-length include-path-flags)))
     (while (< idx lstLen)
@@ -59,7 +59,7 @@ And then set into company-clang-arguments and flycheck-clang-args"
 (defun fs-cc-mode-refresh-company-c-headers-path ()
   "Set `company-c-headers' path."
   (setq company-c-headers-path-system
-	(append fs-cc-mode-gcc-sys-include-path fs-cc-mode-addtional-sys-include-path)))
+	(append fs-cc-mode-gcc-sys-include-path fs-cc-mode-additional-sys-include-path)))
 
 ;; refresh
 (defun fs-cc-mode-refresh ()
@@ -114,7 +114,8 @@ And then set into company-clang-arguments and flycheck-clang-args"
   "Adding system include path.
 Argument SYS-PATH new system path."
   (interactive "Dnew system include path:")
-  (add-to-list 'fs-cc-mode-addtional-sys-include-path sys-path)
+  (message "hello add sys")
+  (add-to-list 'fs-cc-mode-additional-sys-include-path sys-path)
   (fs-cc-mode-refresh))
 
 (defconst fs-cc-mode-license-header-template
