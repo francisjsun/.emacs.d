@@ -44,8 +44,8 @@
   "Evaluate compiler flags from include path& cxx flags.
 And then set into company-clang-arguments and flycheck-clang-args"
   (let* ((include-path-flags (copy-tree fs-cc-mode-additional-sys-include-path))
-	(idx 0)
-	(lstLen (safe-length include-path-flags)))
+	 (idx 0)
+	 (lstLen (safe-length include-path-flags)))
     (while (< idx lstLen)
       (let ((path (nth idx include-path-flags)))
 	(setcar (nthcdr idx include-path-flags)
@@ -53,13 +53,17 @@ And then set into company-clang-arguments and flycheck-clang-args"
       (setq idx (1+ idx)))
     (setq fs-cc-mode-compiler-flags (append fs-cc-mode-additional-cxx-flags include-path-flags))
     (setq company-clang-arguments fs-cc-mode-compiler-flags)
-    (setq flycheck-clang-args fs-cc-mode-compiler-flags)))
+    (setq flycheck-clang-args fs-cc-mode-compiler-flags))
+  (message "fs-cc-mode-refresh-compiler-flags, @fs-cc-mode-compiler-flags: %s" fs-cc-mode-compiler-flags)
+  )
 
 (require 'company-c-headers)
 (defun fs-cc-mode-refresh-company-c-headers-path ()
   "Set `company-c-headers' path."
   (setq company-c-headers-path-system
-	(append fs-cc-mode-gcc-sys-include-path fs-cc-mode-additional-sys-include-path)))
+	(append fs-cc-mode-gcc-sys-include-path fs-cc-mode-additional-sys-include-path))
+  (message "fs-cc-mode-refresh-company-c-headers-path, @fs-cc-mode-additional-sys-include-path: %s"
+           fs-cc-mode-additional-sys-include-path))
 
 ;; refresh
 (defun fs-cc-mode-refresh ()
@@ -105,9 +109,12 @@ And then set into company-clang-arguments and flycheck-clang-args"
     ;; (require 'fs-ggtags)
     
     ;; first refresh
-    (fs-cc-mode-refresh)))
+    (fs-cc-mode-refresh)
+    
+    ;; fs_proj.xml setup
+    (fs-cc-mode-auto-setup-proj-file)))
 
-(add-hook 'c-mode-common-hook 'fs-cc-mode-init)
+(add-hook 'c-initialization-hook 'fs-cc-mode-init)
 
 ;; interactive utils
 (defun fs-cc-mode-add-sys-include-path (sys-path)
@@ -117,6 +124,98 @@ Argument SYS-PATH new system path."
   (message "hello add sys")
   (add-to-list 'fs-cc-mode-additional-sys-include-path sys-path)
   (fs-cc-mode-refresh))
+
+;; fs c++ proj file(fs_proj.xml)
+;; <inc_dir>
+;; <sys>
+;; "h1;h2;..."
+;; </sys>
+;; <user>
+;; "h1;h2;..."
+;; </user>
+;; </inc_dir>
+(defconst fs-cc-mode--fs-proj-file-name "fs_proj.xml")
+(defvar fs-cc-mode-current-proj-file
+  "Current proj file")
+
+(defun fs-cc-mode-set-proj-file (fs-proj-file)
+  "Set current proj file.
+Argument FS-PROJ-FILE fs_proj.xml path"
+  (interactive "ffs_proj.xml path: ")
+  (setq fs-cc-mode-current-proj-file fs-proj-file)
+  (fs-cc-mode-parse--proj-file fs-cc-mode-current-proj-file))
+
+(defun fs-cc-mode-auto-setup-proj-file ()
+  "Find fs_proj.xml and parse automatically."
+  (interactive)
+  (let ((found nil)
+        (start-idx 0)
+        (dirs)
+        (dir-idx 0)
+        (len-dirs))
+
+    ;; find all dirs
+    (while (setq start-idx (string-match-p "/" default-directory start-idx))
+      (add-to-list 'dirs (substring default-directory 0 start-idx))
+      (setq start-idx (+ start-idx 1)))
+    (setq len-dirs (length dirs))
+    ;; iterate all dirs
+    (while (and (not found) (< dir-idx len-dirs))
+      (let ((current-dir)
+            (file-idx 0)
+            (files)
+            (files-count)
+            (current-file))
+        (setq current-dir (nth dir-idx dirs))
+
+        (setq files (directory-files current-dir))
+        (setq files-count (length files))
+        ;; iterate all files in dir
+        (while (and (not found) (< file-idx files-count))
+          (setq current-file (nth file-idx files))
+          (when (string-equal current-file fs-cc-mode--fs-proj-file-name)
+            (setq found current-dir))
+          (setq file-idx (+ file-idx 1)))
+        (setq dir-idx (+ dir-idx 1))))
+    (if found
+        (progn
+          (message "%s found @dir: %s" fs-cc-mode--fs-proj-file-name found)
+          (fs-cc-mode--parse-proj-file
+           (expand-file-name fs-cc-mode--fs-proj-file-name found)))
+      (message "%s not found" fs-cc-mode--fs-proj-file-name))))
+
+(require 'xml)
+(defun fs-cc-mode--parse-proj-file (proj-file)
+  "Parse a proj file.
+Argument PROJ-FILE fs_proj file path."
+  (let* (
+         (xml-root (xml-parse-file proj-file nil nil))
+         (xml-root (car xml-root))      ; get rid of first parentheses
+         (sys-inc-dir (car (xml-get-children xml-root 'sys)))
+         (user-inc-dir (car (xml-get-children xml-root 'user)))
+         (sys-inc-dir (nth 2 sys-inc-dir))
+         (user-inc-dir (nth 2 user-inc-dir))
+         (inc-dir)
+         )
+    (when sys-inc-dir
+      (setq sys-inc-dir (split-string sys-inc-dir ";")))
+    (when user-inc-dir
+      (setq user-inc-dir (split-string user-inc-dir ";")))
+
+    (setq inc-dir (append sys-inc-dir user-inc-dir)) ;TODO add user include dir
+    (when inc-dir
+      (let (
+            (len-inc-dir (safe-length inc-dir))
+            (idx 0)
+            (cur-dir))
+        (while (< idx len-inc-dir)
+          (setq cur-dir (nth idx inc-dir))
+          (when (not (member cur-dir fs-cc-mode-additional-sys-include-path))
+            (add-to-list 'fs-cc-mode-additional-sys-include-path cur-dir))
+          (setq idx (+ idx 1))
+          )
+        (fs-cc-mode-refresh)))
+    ))
 
 (defconst fs-cc-mode-license-header-template
   "/*
@@ -140,7 +239,7 @@ class %s
 };"))
 
 (defconst fs-cc-mode-cpp-template
-"#include \"%s.h\"")
+  "#include \"%s.h\"")
 
 (defun fs-cc-mode-create-class (CLASS-NAME PATH)
   "Create a .h and .cpp files cooresponding to CLASS-NAME in PATH."

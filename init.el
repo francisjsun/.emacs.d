@@ -14,6 +14,8 @@
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
+
+(setq custom-file "~/.emacs.d/custom.el")
 (package-initialize)
 
 (defun fs-sudo-shell-command (cmd)
@@ -105,26 +107,6 @@ Argument CMD shell cmd"
 
 ;;(emacs-init-time)
 
+(while (file-exists-p custom-file)
+  (load custom-file))
 ;;; init.el ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (htmlize glsl-mode lua-mode company-c-headers company flycheck rainbow-delimiters ace-window smartparens markdown-mode))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(rainbow-delimiters-depth-1-face ((t (:foreground "cyan"))))
- '(rainbow-delimiters-depth-2-face ((t (:foreground "white"))))
- '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
- '(rainbow-delimiters-depth-4-face ((t (:foreground "cyan"))))
- '(rainbow-delimiters-depth-5-face ((t (:foreground "white"))))
- '(rainbow-delimiters-depth-6-face ((t (:foreground "yellow"))))
- '(rainbow-delimiters-depth-7-face ((t (:foreground "cyan"))))
- '(rainbow-delimiters-mismatched-face ((t (:foreground "red"))))
- '(rainbow-delimiters-unmatched-face ((t (:foreground "red")))))
