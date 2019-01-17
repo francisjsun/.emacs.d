@@ -8,12 +8,16 @@
 
 (require 'package)
 
-;; using emacs-china mirror
+;; using melpa
 (setq package-archives nil)
+
 (add-to-list 'package-archives
-	     '("emacs-china-melpa" . "http://elpa.emacs-china.org/melpa/"))
+	     '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives
-	     '("emacs-china-gnu" . "http://elpa.emacs-china.org/gnu/"))
+ 	     '("melpa-stable" . "http://stable.melpa.org/packages/"))
+
+(add-to-list 'package-archive-priorities '((melpa-stable . 1)))
+
 
 (defvar fs-package-packages
   '(

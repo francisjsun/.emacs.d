@@ -10,20 +10,20 @@
 ;; should added before cc-mode enabled
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
-;; gcc system include path
-(defvar fs-cc-mode-gcc-sys-include-path)
-;; g++ -E -x c++ - -v
-(let ((g++-output) (sys-include-path))
-  (setq g++-output (shell-command-to-string "g++ -E -x c++ - -v"))
+;; clang system include path
+(defvar fs-cc-mode-clang-sys-include-path)
+;; clang -E -x c++ - -v < /dev/null, ref: https://stackoverflow.com/a/11946295
+(let ((clang-output) (sys-include-path))
+  (setq clang-output (shell-command-to-string "clang -E -x c++ - -v < /dev/null"))
   (string-match "#include <\\.\\.\\.> search starts here:
-\\(\\( .+\n\\)+\\)End of search list." g++-output)
-  (setq sys-include-path (match-string 1 g++-output))
-  (setq fs-cc-mode-gcc-sys-include-path (split-string sys-include-path "\n"))
+\\(\\( .+\n\\)+\\)End of search list." clang-output)
+  (setq sys-include-path (match-string 1 clang-output))
+  (setq fs-cc-mode-clang-sys-include-path (split-string sys-include-path "\n"))
   )
 
 (defvar fs-cc-mode-additional-sys-include-path
   '(
-    "/usr/local"
+    ;; "/usr/local"
     )
   "Addtional system include path.")
 
@@ -61,7 +61,7 @@ And then set into company-clang-arguments and flycheck-clang-args"
 (defun fs-cc-mode-refresh-company-c-headers-path ()
   "Set `company-c-headers' path."
   (setq company-c-headers-path-system
-	(append fs-cc-mode-gcc-sys-include-path fs-cc-mode-additional-sys-include-path))
+	(append fs-cc-mode-clang-sys-include-path fs-cc-mode-additional-sys-include-path))
   (message "fs-cc-mode-refresh-company-c-headers-path, @fs-cc-mode-additional-sys-include-path: %s"
            fs-cc-mode-additional-sys-include-path))
 
@@ -88,33 +88,43 @@ And then set into company-clang-arguments and flycheck-clang-args"
 	(throw 'ret t)))
     (throw 'ret nil)))
 
+;; coding style
+;; (c-set-style "fs")
+(defconst fs-cc-mode--fs-c-style
+  '("linux"
+    (c-basic-offset . 4)
+    (c-offsets-alist
+     (inline-open . 0)
+     (substatement-open . 0)
+     (statement-cont . 0)))
+  "FS-C-STYLE.")
+(c-add-style "fs" fs-cc-mode--fs-c-style)
+(setq c-default-style "fs")
+
 (defun fs-cc-mode-init ()
   "Init."
   (when (fs-cc-mode-is-my-mode)
-    ;; coding style
-    (c-set-style "linux")
-    (setq c-basic-offset 4)
+
     
     ;; ff-find-other-file
     (local-set-key (kbd "C-x C-o") 'ff-find-other-file)
     
     ;; company setup
-    (add-to-list 'company-backends 'company-c-headers)
+    (add-to-list 'company-backends 'company-c-headers)))
 
-    ;; flycheck setup
-    (flycheck-mode)
-    (flycheck-select-checker 'c/c++-clang)
-
-    ;; gtags
-    ;; (require 'fs-ggtags)
-    
-    ;; first refresh
-    (fs-cc-mode-refresh)
-    
-    ;; fs_proj.xml setup
-    (fs-cc-mode-auto-setup-proj-file)))
 
 (add-hook 'c-initialization-hook 'fs-cc-mode-init)
+
+(defun fs-cc-mode--flycheck-setup ()
+  "Flycheck setup."
+  (flycheck-mode)
+  (flycheck-select-checker 'c/c++-clang))
+
+;; flycheck setup
+(add-hook 'c-mode--common-hook 'fs-cc-mode--flycheck-setup)
+
+;; fs_proj.xml setup
+(add-hook 'c-initialization-hook 'fs-cc-mode-auto-setup-proj-file)
 
 ;; interactive utils
 (defun fs-cc-mode-add-sys-include-path (sys-path)
@@ -135,8 +145,8 @@ Argument SYS-PATH new system path."
 ;; </user>
 ;; </inc_dir>
 (defconst fs-cc-mode--fs-proj-file-name "fs_proj.xml")
-(defvar fs-cc-mode-current-proj-file
-  "Current proj file")
+(defvar fs-cc-mode-current-proj-file nil
+  "Current proj file.")
 
 (defun fs-cc-mode-set-proj-file (fs-proj-file)
   "Set current proj file.
@@ -197,12 +207,25 @@ Argument PROJ-FILE fs_proj file path."
          (user-inc-dir (nth 2 user-inc-dir))
          (inc-dir)
          )
-    (when sys-inc-dir
-      (setq sys-inc-dir (split-string sys-inc-dir ";")))
-    (when user-inc-dir
-      (setq user-inc-dir (split-string user-inc-dir ";")))
 
-    (setq inc-dir (append sys-inc-dir user-inc-dir)) ;TODO add user include dir
+    (let ((post-edit-inc-dir (lambda (inc-dir)
+                               (let ((inc-dir-value))
+                                 ;; rm character '\n' '"'
+                                 (setq inc-dir-value (eval inc-dir))
+                                 (setq inc-dir-value (seq-remove (lambda (elt) ;will break into list
+                                                                   (or (= elt ?\") (= elt ?\n)))
+                                                                 inc-dir-value))
+                                 (setq inc-dir-value (concat inc-dir-value)) ;concat into a string again
+                                 ;; split into list
+                                 (set inc-dir (split-string inc-dir-value ";" t))))))
+      
+      (funcall post-edit-inc-dir 'sys-inc-dir)
+      (funcall post-edit-inc-dir 'user-inc-dir))
+
+    (setq inc-dir (append sys-inc-dir user-inc-dir))
+
+    ;; (setq inc-dir (concat sys-inc-dir user-inc-dir))
+    (message "inc-dir: %s, len: %s" inc-dir (length inc-dir))
     (when inc-dir
       (let (
             (len-inc-dir (safe-length inc-dir))

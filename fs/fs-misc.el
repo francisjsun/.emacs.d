@@ -76,6 +76,19 @@
       (exec-path-from-shell-initialize)
     (message "exec-path-from-shell not install?")))
 
+;; carriage return character setup
+(prefer-coding-system 'utf-8-unix)
+
+;; ext of dired
+(defun fs-dired-indent-marked-files()
+  "Do \"indent-region\" foreach file in marked-files."
+  (interactive)
+  (dolist (file (dired-get-marked-files))
+    (find-file file)
+    (indent-region (point-min) (point-max))
+    (save-buffer)
+    (kill-buffer nil)))
+
 (provide 'fs-misc)
 
 ;;; fs-misc.el ends here

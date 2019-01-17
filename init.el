@@ -107,6 +107,6 @@ Argument CMD shell cmd"
 
 ;;(emacs-init-time)
 
-(while (file-exists-p custom-file)
+(when (file-exists-p custom-file)
   (load custom-file))
 ;;; init.el ends here
