@@ -262,7 +262,8 @@ class %s
 };"))
 
 (defconst fs-cc-mode-cpp-template
-  "#include \"%s.h\"")
+  (concat fs-cc-mode-license-header
+          "#include \"%s.h\""))
 
 (defun fs-cc-mode-create-class (CLASS-NAME PATH)
   "Create a .h and .cpp files cooresponding to CLASS-NAME in PATH."
