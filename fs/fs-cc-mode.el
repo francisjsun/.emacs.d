@@ -153,7 +153,7 @@ Argument SYS-PATH new system path."
 Argument FS-PROJ-FILE fs_proj.xml path"
   (interactive "ffs_proj.xml path: ")
   (setq fs-cc-mode-current-proj-file fs-proj-file)
-  (fs-cc-mode-parse--proj-file fs-cc-mode-current-proj-file))
+  (fs-cc-mode--parse-proj-file fs-cc-mode-current-proj-file))
 
 (defun fs-cc-mode-auto-setup-proj-file ()
   "Find fs_proj.xml and parse automatically."
@@ -194,20 +194,29 @@ Argument FS-PROJ-FILE fs_proj.xml path"
            (expand-file-name fs-cc-mode--fs-proj-file-name found)))
       (message "%s not found" fs-cc-mode--fs-proj-file-name))))
 
+(defvar fs-cc-mode-fs-proj-src-files
+  nil "Fs proj src files.")
+
 (require 'xml)
 (defun fs-cc-mode--parse-proj-file (proj-file)
   "Parse a proj file.
 Argument PROJ-FILE fs_proj file path."
   (let* (
          (xml-root (xml-parse-file proj-file nil nil))
-         (xml-root (car xml-root))      ; get rid of first parentheses
-         (sys-inc-dir (car (xml-get-children xml-root 'sys)))
-         (user-inc-dir (car (xml-get-children xml-root 'user)))
-         (sys-inc-dir (nth 2 sys-inc-dir))
-         (user-inc-dir (nth 2 user-inc-dir))
+         (xml-root (car xml-root))      ; get rid of first parentheses:((node))
+         (inc-dir-node (car (xml-get-children xml-root 'inc_dir)))
+         (sys-inc-dir (xml-get-attribute inc-dir-node 'sys))
+         (user-inc-dir (xml-get-attribute inc-dir-node 'user))
+         (src-node (car (xml-get-children xml-root 'src)))
+         (src-files (xml-get-attribute src-node 'file))
+         ;; (sys-inc-dir (car (xml-get-children xml-root 'sys)))
+         ;; (xml-get-attribute)
+         ;; (user-inc-dir (car (xml-get-children xml-root 'user)))
+         ;; (sys-inc-dir (nth 2 sys-inc-dir))
+         ;; (user-inc-dir (nth 2 user-inc-dir))
          (inc-dir)
          )
-
+    (setq fs-cc-mode-fs-proj-src-files (split-string src-files ";" t))
     (let ((post-edit-inc-dir (lambda (inc-dir)
                                (let ((inc-dir-value))
                                  ;; rm character '\n' '"'
@@ -244,12 +253,56 @@ Argument PROJ-FILE fs_proj file path."
   "/*
  * Copyright (c) %s, F.S.. All rights reserved.
  */
-
 ")
 
 (defconst fs-cc-mode-license-header
   (format fs-cc-mode-license-header-template
           (format-time-string "%Y" (current-time))))
+
+;; declare copyright
+(defun fs-cc-mode-fs-proj-declare-copyright (&optional COPYRIGHT)
+  "Insert COPYRIGHT statement to all fs-proj src files."
+  (interactive "sCopyright: ")
+  (dolist (src-file fs-cc-mode-fs-proj-src-files)
+    (fs-cc-mode-declare-copyright src-file COPYRIGHT)))
+
+(defun fs-cc-mode-declare-copyright (FILE-PATH &optional COPYRIGHT)
+  "Insert COPYRIGHT statement at the beginning of FILE-PATH."
+  (interactive "fFile path: \nsCopyright: ")
+  (if (equal "" COPYRIGHT)
+      (setq COPYRIGHT fs-cc-mode-license-header)
+    (setq COPYRIGHT (concat "/*\n" " * " COPYRIGHT "\n */\n\n"))) ;remove ending '\n'
+  (let ((origin-file-content)
+        (old-copyright-begin-idx)
+        (old-copyright-end-idx)
+        (old-copyright-idx))
+    (setq origin-file-content
+          (with-temp-buffer (insert-file-contents FILE-PATH)
+                            (buffer-string)))
+    (setq old-copyright-begin-idx (string-match-p "/\*" origin-file-content))
+    (when old-copyright-begin-idx
+      (setq old-copyright-end-idx
+            (string-match-p "\*/" origin-file-content old-copyright-begin-idx))
+      (when old-copyright-end-idx
+        (setq old-copyright-idx
+              (string-match-p "Copyright" origin-file-content old-copyright-begin-idx))
+        (when (and old-copyright-idx (< old-copyright-idx old-copyright-end-idx))
+          ;; old copyright statement found.
+          (setq origin-file-content
+                ;; cut old copyright out
+                (substring origin-file-content (+ old-copyright-end-idx 2)))
+          ;; remove all heading '\n'
+          (let* ((ele-idx 0)
+                 (ele (elt origin-file-content ele-idx))
+                 (a-newline-p (equal ?\n ele)))
+            (while a-newline-p
+              (setq ele-idx (+ 1 ele-idx))
+              (setq ele (elt origin-file-content ele-idx))
+              (setq a-newline-p (= ?\n ele)))
+            (setq origin-file-content (substring origin-file-content ele-idx))))))
+    
+    (setq origin-file-content (concat COPYRIGHT origin-file-content))
+    (write-region origin-file-content nil FILE-PATH)))
 
 ;; class template
 (defconst fs-cc-mode-header-template
@@ -267,7 +320,7 @@ class %s
 
 (defun fs-cc-mode-create-class (CLASS-NAME PATH)
   "Create a .h and .cpp files cooresponding to CLASS-NAME in PATH."
-  (interactive "sclass-name:\nDpath:")
+  (interactive "sclass-name: \nDpath:")
   (let ((header-template (format fs-cc-mode-header-template CLASS-NAME))
 	(cpp-template (format fs-cc-mode-cpp-template CLASS-NAME))
 	(file-name (concat PATH "/" CLASS-NAME ".")))
@@ -283,7 +336,7 @@ class %s
 
 (defun fs-cc-mode-create-single-header (HEADER-NAME PATH)
   "Create a .h file cooresponding to HEADER-NAME in PATH."
-  (interactive "sheader-name:\nDpath:")
+  (interactive "header-name: \nDpath:")
   (let ((header-template fs-cc-mode-single-header-template)
         (file-name (concat PATH "/" HEADER-NAME ".h")))
     (write-region header-template nil file-name nil nil nil t)
