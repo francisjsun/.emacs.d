@@ -253,6 +253,7 @@ Argument PROJ-FILE fs_proj file path."
   "/*
  * Copyright (c) %s, F.S.. All rights reserved.
  */
+
 ")
 
 (defconst fs-cc-mode-license-header
