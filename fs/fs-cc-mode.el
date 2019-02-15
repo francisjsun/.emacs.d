@@ -31,6 +31,7 @@
   '(
     "-std=c++11"
     "-Wno-pragma-once-outside-header"	;remove warning: pragma once in main file
+    ;; "-fms-compatibility-version=19", using windows version clang
     )
   "Additional cxx flags.")
 
@@ -88,6 +89,12 @@ And then set into company-clang-arguments and flycheck-clang-args"
 	(throw 'ret t)))
     (throw 'ret nil)))
 
+;; flycheck setup
+(defun fs-cc-mode--flycheck-setup ()
+  "Flycheck setup."
+  (flycheck-mode)
+  (flycheck-select-checker 'c/c++-clang))
+
 ;; coding style
 ;; (c-set-style "fs")
 (defconst fs-cc-mode--fs-c-style
@@ -112,19 +119,19 @@ And then set into company-clang-arguments and flycheck-clang-args"
     ;; company setup
     (add-to-list 'company-backends 'company-c-headers)))
 
+(defun fs-cc-mode--common-hook ()
+  "Common hook."
+  (when (fs-cc-mode-is-my-mode)
+    (fs-cc-mode--flycheck-setup)
+    (setq comment-start "/**" comment-end " */")))
+
 
 (add-hook 'c-initialization-hook 'fs-cc-mode-init)
 
-(defun fs-cc-mode--flycheck-setup ()
-  "Flycheck setup."
-  (flycheck-mode)
-  (flycheck-select-checker 'c/c++-clang))
-
-;; flycheck setup
-(add-hook 'c-mode--common-hook 'fs-cc-mode--flycheck-setup)
+(add-hook 'c-mode-common-hook 'fs-cc-mode--common-hook)
 
 ;; fs_proj.xml setup
-(add-hook 'c-initialization-hook 'fs-cc-mode-auto-setup-proj-file)
+(add-hook 'c-initialization-hook 'fs-cc-mode-fs-proj-auto-setup)
 
 ;; interactive utils
 (defun fs-cc-mode-add-sys-include-path (sys-path)
@@ -148,14 +155,14 @@ Argument SYS-PATH new system path."
 (defvar fs-cc-mode-current-proj-file nil
   "Current proj file.")
 
-(defun fs-cc-mode-set-proj-file (fs-proj-file)
+(defun fs-cc-mode-fs-proj-set-proj-file (fs-proj-file)
   "Set current proj file.
 Argument FS-PROJ-FILE fs_proj.xml path"
   (interactive "ffs_proj.xml path: ")
   (setq fs-cc-mode-current-proj-file fs-proj-file)
   (fs-cc-mode--parse-proj-file fs-cc-mode-current-proj-file))
 
-(defun fs-cc-mode-auto-setup-proj-file ()
+(defun fs-cc-mode-fs-proj-auto-setup ()
   "Find fs_proj.xml and parse automatically."
   (interactive)
   (let ((found nil)
@@ -209,11 +216,6 @@ Argument PROJ-FILE fs_proj file path."
          (user-inc-dir (xml-get-attribute inc-dir-node 'user))
          (src-node (car (xml-get-children xml-root 'src)))
          (src-files (xml-get-attribute src-node 'file))
-         ;; (sys-inc-dir (car (xml-get-children xml-root 'sys)))
-         ;; (xml-get-attribute)
-         ;; (user-inc-dir (car (xml-get-children xml-root 'user)))
-         ;; (sys-inc-dir (nth 2 sys-inc-dir))
-         ;; (user-inc-dir (nth 2 user-inc-dir))
          (inc-dir)
          )
     (setq fs-cc-mode-fs-proj-src-files (split-string src-files ";" t))
@@ -235,6 +237,8 @@ Argument PROJ-FILE fs_proj file path."
 
     ;; (setq inc-dir (concat sys-inc-dir user-inc-dir))
     (message "inc-dir: %s, len: %s" inc-dir (length inc-dir))
+    ;; clear old sys-include-path
+    (setq fs-cc-mode-additional-sys-include-path nil)
     (when inc-dir
       (let (
             (len-inc-dir (safe-length inc-dir))
@@ -337,7 +341,7 @@ class %s
 
 (defun fs-cc-mode-create-single-header (HEADER-NAME PATH)
   "Create a .h file cooresponding to HEADER-NAME in PATH."
-  (interactive "header-name: \nDpath:")
+  (interactive "sheader-name: \nDpath:")
   (let ((header-template fs-cc-mode-single-header-template)
         (file-name (concat PATH "/" HEADER-NAME ".h")))
     (write-region header-template nil file-name nil nil nil t)
