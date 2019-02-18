@@ -29,9 +29,8 @@
 
 (defvar fs-cc-mode-additional-cxx-flags
   '(
-    "-std=c++11"
-    "-Wno-pragma-once-outside-header"	;remove warning: pragma once in main file
-    ;; "-fms-compatibility-version=19", using windows version clang
+    "-Wno-pragma-once-outside-header"	; remove warning: pragma once in main file
+    ;; "-fms-compatibility-version=19" ; using windows version clang
     )
   "Additional cxx flags.")
 
