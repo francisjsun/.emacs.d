@@ -248,8 +248,8 @@ Argument PROJ-FILE fs_proj file path."
           (when (not (member cur-dir fs-cc-mode-additional-sys-include-path))
             (add-to-list 'fs-cc-mode-additional-sys-include-path cur-dir))
           (setq idx (+ idx 1))
-          )
-        (fs-cc-mode-refresh)))
+          )))
+    (fs-cc-mode-refresh)
     ))
 
 (defconst fs-cc-mode-license-header-template
