@@ -7,6 +7,15 @@
 
 (require 'cc-mode)
 
+;; irony-mode setup
+(add-hook 'c++-mode-hook 'irony-mode)
+(add-hook 'c-mode-hook 'irony-mode)
+(add-hook 'objc-mode-hook 'irony-mode)
+(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+(eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+(require 'company)
+(eval-after-load 'company '(progn (add-to-list 'company-backends 'company-irony)
+                                  (delete 'company-clang company-backends)))
 ;; should added before cc-mode enabled
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
@@ -38,8 +47,9 @@
   nil
   "Final compiler flags.")
 
-(require 'company-clang)
-(require 'flycheck)
+;; (require 'company-clang)
+;; (require 'flycheck)
+(require 'find-file)
 (defun fs-cc-mode-refresh-compiler-flags ()
   "Evaluate compiler flags from include path& cxx flags.
 And then set into company-clang-arguments and flycheck-clang-args"
@@ -52,8 +62,11 @@ And then set into company-clang-arguments and flycheck-clang-args"
 		(concat "-I" path)))
       (setq idx (1+ idx)))
     (setq fs-cc-mode-compiler-flags (append fs-cc-mode-additional-cxx-flags include-path-flags))
-    (setq company-clang-arguments fs-cc-mode-compiler-flags)
-    (setq flycheck-clang-args fs-cc-mode-compiler-flags))
+    ;; (setq company-clang-arguments fs-cc-mode-compiler-flags)
+    ;; (setq flycheck-clang-args fs-cc-mode-compiler-flags))
+    )
+  ;; set ff-search-directories
+  (setq ff-search-directories (append '(".") fs-cc-mode-additional-sys-include-path))
   (message "fs-cc-mode-refresh-compiler-flags, @fs-cc-mode-compiler-flags: %s" fs-cc-mode-compiler-flags)
   )
 
@@ -72,7 +85,7 @@ And then set into company-clang-arguments and flycheck-clang-args"
   (fs-cc-mode-refresh-company-c-headers-path))
 
 ;; init
-(require 'company-clang)
+;; (require 'company-clang)
 (require 'company-c-headers)
 
 (defconst fs-cc-mode-name
@@ -92,7 +105,8 @@ And then set into company-clang-arguments and flycheck-clang-args"
 (defun fs-cc-mode--flycheck-setup ()
   "Flycheck setup."
   (flycheck-mode)
-  (flycheck-select-checker 'c/c++-clang))
+  ;; (flycheck-select-checker 'c/c++-clang)
+  )
 
 ;; coding style
 ;; (c-set-style "fs")

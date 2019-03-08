@@ -34,6 +34,9 @@
     cmake-mode
     lua-mode
     glsl-mode
+    irony
+    company-irony
+    flycheck-irony
     ;; company-glsl
     )
   "Packages for installing."
