@@ -20,6 +20,8 @@ function fs_apt_get
 
 fs_apt_get clang
 
+fs_apt_get libclang-dev
+
 # removed because debian's distibute is too old
 # see this issue of ggtags
 # https://github.com/leoliu/ggtags/issues/31
