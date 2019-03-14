@@ -1,37 +1,45 @@
 ;;; init.el --- fs emacs init.el
 
 ;;; Commentary:
-;; run Emacs with arg --fs-init when first time for dependencies setup
+;; run Emacs with arg --fs-init first time
+;; setup flow: init.el => if fs-init then setup.sh; setup.el; else setup.el.
 ;; 
 
 ;;; Code:
 
-;; Setup emacs dependencies
-
-;; run sudo command
-
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
-
 (setq custom-file "~/.emacs.d/custom.el")
 (package-initialize)
+(add-to-list 'load-path
+	     (substitute-in-file-name "$HOME/.emacs.d/fs"))
 
-(defun fs-sudo-shell-command (cmd)
-  "Run sudo command.
-Argument CMD shell cmd"
-  (interactive "scmd:")
-  (shell-command (concat "echo "
-			 (read-passwd "sudo password:")
-			 " | sudo -S " cmd)
-		 "fs-sudo-shell-command-output"))
+
+;; Setup emacs dependencies
+
+(defvar fs-init-buffer nil)
+
+
+(defun fs-init-sentinel (process event)
+  "Sentinel for fs-init procedure, PROCESS EVENT."
+  (if (equal event "finished\n")
+      (progn
+	(kill-buffer fs-init-buffer)
+	(require 'setup))
+    (message "fs-init error, @event: %s" event)))
 
 (defun fs-init-setup ()
   "Init setup."
   (interactive)
-  (fs-sudo-shell-command
-   (substitute-in-file-name "$HOME/.emacs.d/fs/setup.sh")))
+  (let (
+         (fs-init-sh-cmd
+          (concat "echo "
+                  (read-passwd "sudo password: ")
+                  " | sudo -S bash "
+                  (substitute-in-file-name "$HOME/.emacs.d/fs/setup.sh"))))
+    (setq fs-init-buffer (get-buffer-create "fs-init"))
+    (set-process-sentinel
+     (start-process-shell-command "fs-init" fs-init-buffer fs-init-sh-cmd)
+     'fs-init-sentinel)
+    (display-buffer fs-init-buffer)))
 
 ;; removed because this hook function will be called after init.el done,
 ;; and this is not what I want
@@ -63,50 +71,9 @@ Argument CMD shell cmd"
 
 (fs-init-fs-option)
 
-;;; normal init.el begins here
-(add-to-list 'load-path
-	     (substitute-in-file-name "$HOME/.emacs.d/fs"))
+(unless fs-init-buffer
+  (require 'setup))
 
-(let (
-      ;; optimizing for setup
-      ;; https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/
-      (file-name-handler-alist nil)
-      (gc-cons-threshold most-positive-fixnum)
-      )
-  (require 'fs-package)
-  (require 'fs-misc)
-  (require 'fs-company)
-  (require 'fs-cc-mode)
-  (require 'fs-lua)
-  (require 'fs-glsl)
-  (require 'fs-org)
-  )
+(provide 'init)
 
-;;;; optimization
-
-;; GC threshold
-(defconst fs-init-gc-cons-threshold-default
-  gc-cons-threshold
-  "Default GC threashold value.")
-
-;; see http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold
-(defun fs-init-gc-cons-threshold-tweaks (ismax)
-  "Argument ISMAX if going to set gc-cons-threashold to max."
-  (if ismax
-      (setq gc-cons-threshold most-positive-fixnum)
-    (setq gc-cons-threshold fs-init-gc-cons-threshold-default)
-    ))
-
-(add-hook 'minibuffer-setup-hook
-	  (lambda ()
-	    (fs-init-gc-cons-threshold-tweaks t)))
-
-(add-hook 'minibuffer-exit-hook
-	  (lambda ()
-	    (fs-init-gc-cons-threshold-tweaks nil)))
-
-;;(emacs-init-time)
-
-(when (file-exists-p custom-file)
-  (load custom-file))
 ;;; init.el ends here
