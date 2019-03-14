@@ -18,7 +18,7 @@ function fs_apt_get
     echo "**** $1 installed ****"
 }
 
-# fs_apt_get clang
+fs_apt_get clang
 
 fs_apt_get libclang-dev
 
