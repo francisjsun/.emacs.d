@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function fs_apt_get
+fs_apt_get ()
 {
     echo "**** installing $1 ****"
 
