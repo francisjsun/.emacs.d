@@ -7,15 +7,34 @@
 
 (require 'cc-mode)
 
+(defconst fs-cc-mode-name
+  '("c-mode"
+    "c++-mode"
+    ))
+
+(defun fs-cc-mode-is-my-mode ()
+  "Return t if 'major-mode' is on of my 'mode-name' else return nil."
+  (catch 'ret
+    (dolist (m fs-cc-mode-name)
+      (when (string-equal major-mode m)
+	(throw 'ret t)))
+    (throw 'ret nil)))
+
 ;; irony-mode setup
-(add-hook 'c++-mode-hook 'irony-mode)
-(add-hook 'c-mode-hook 'irony-mode)
-(add-hook 'objc-mode-hook 'irony-mode)
+(defun fs-cc-mode--irony-mode ()
+  "Irony-mode setup."
+  (when (fs-cc-mode-is-my-mode)
+    (irony-mode)))
+
+(add-hook 'c++-mode-hook 'fs-cc-mode--irony-mode)
+(add-hook 'c-mode-hook 'fs-cc-mode--irony-mode)
+(add-hook 'objc-mode-hook 'fs-cc-mode--irony-mode)
 (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
 (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
 (require 'company)
 (eval-after-load 'company '(progn (add-to-list 'company-backends 'company-irony)
                                   (delete 'company-clang company-backends)))
+
 ;; should added before cc-mode enabled
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
@@ -88,18 +107,6 @@ And then set into company-clang-arguments and flycheck-clang-args"
 ;; (require 'company-clang)
 (require 'company-c-headers)
 
-(defconst fs-cc-mode-name
-  '("c-mode"
-    "c++-mode"
-    ))
-
-(defun fs-cc-mode-is-my-mode ()
-  "Return t if 'major-mode' is on of my 'mode-name' else return nil."
-  (catch 'ret
-    (dolist (m fs-cc-mode-name)
-      (when (string-equal major-mode m)
-	(throw 'ret t)))
-    (throw 'ret nil)))
 
 ;; flycheck setup
 (defun fs-cc-mode--flycheck-setup ()
