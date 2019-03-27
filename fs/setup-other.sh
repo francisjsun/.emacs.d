@@ -22,6 +22,21 @@ fs_apt_get clang
 
 fs_apt_get libclang-dev
 
+# install elpy dependencies
+fs_apt_get python3
+fs_apt_get python3-pip
+fs_apt_get python3-venv
+
+if [[ -d ~/.emacs.d/elpy-venv ]]
+then
+    rm -rfv ~/.emacs.d/elpy-venv
+fi
+
+python3 -m venv ~/.emacs.d/elpy-venv
+source ~/.emacs.d/elpy-venv/bin/activate
+pip3 install rope jedi flake8 autopep8 yapf black
+deactivate
+
 # removed because debian's distibute is too old
 # see this issue of ggtags
 # https://github.com/leoliu/ggtags/issues/31

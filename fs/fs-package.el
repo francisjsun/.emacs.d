@@ -37,6 +37,7 @@
     irony
     company-irony
     flycheck-irony
+    elpy
     ;; company-glsl
     )
   "Packages for installing."

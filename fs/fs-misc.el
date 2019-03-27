@@ -89,6 +89,13 @@
     (save-buffer)
     (kill-buffer nil)))
 
+;; elpy setup
+(require 'elpy)
+(elpy-enable)
+(setq elpy-rpc-python-command "python3")
+(pyvenv-workon 'elpy-venv)
+(pyvenv-activate "elpy-venv")
+
 (provide 'fs-misc)
 
 ;;; fs-misc.el ends here

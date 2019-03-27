@@ -17,3 +17,5 @@ custom.el
 irony/
 
 eshell/
+
+elpy-venv/
