@@ -93,8 +93,10 @@
 (require 'elpy)
 (elpy-enable)
 (setq elpy-rpc-python-command "python3")
-(pyvenv-workon 'elpy-venv)
-(pyvenv-activate "elpy-venv")
+(pyvenv-workon "elpy-venv")
+(pyvenv-activate "~/.emacs.d/elpy-venv")
+(setq python-shell-interpreter "python3"
+      python-shell-interpreter-args "-i")
 
 (provide 'fs-misc)
 
