@@ -21,12 +21,13 @@ fi
 
 # other sys(ubuntu...)
 
-if [ "$EUID" -ne 0 ]
-then
-    echo "should run as root"
-    return 0
-fi
+# if [ "$EUID" -ne 0 ]
+# then
+#     echo "should run as root"
+#     return 0
+# fi
 
-source ~/.emacs.d/fs/setup-other.sh
+PASSWORD=$1
+source ~/.emacs.d/fs/setup-other.sh $PASSWORD
 
 echo "******** end of emacs dependencies setting up ********"

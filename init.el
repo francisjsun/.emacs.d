@@ -22,7 +22,7 @@
   "Sentinel for fs-init procedure, PROCESS EVENT."
   (if (equal event "finished\n")
       (progn
-	(kill-buffer fs-init-buffer)
+	;; (kill-buffer fs-init-buffer)
 	(require 'setup))
     (message "fs-init error, @event: %s" event)))
 
@@ -33,8 +33,9 @@
          (fs-init-sh-cmd
           (concat "echo "
                   (read-passwd "sudo password: ")
-                  " | sudo -S bash "
-                  (substitute-in-file-name "$HOME/.emacs.d/fs/setup.sh"))))
+                  " | xargs -i{} bash "
+                  (substitute-in-file-name "$HOME/.emacs.d/fs/setup.sh")
+                  " {}")))
     (setq fs-init-buffer (get-buffer-create "fs-init"))
     (set-process-sentinel
      (start-process-shell-command "fs-init" fs-init-buffer fs-init-sh-cmd)

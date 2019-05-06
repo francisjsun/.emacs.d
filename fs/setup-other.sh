@@ -1,7 +1,10 @@
 #!/bin/bash
 
+PASSWORD=$1
+
 fs_apt_get ()
 {
+    alias fs-sudo=""
     echo "**** installing $1 ****"
 
     checkName=$1
@@ -12,7 +15,7 @@ fs_apt_get ()
 
     if ! command -v $checkName 1>/dev/null
     then
-	printf "y\n" | apt-get install $1
+	echo $PASSWORD | sudo -S apt-get --assume-yes install $1
     fi
 
     echo "**** $1 installed ****"
@@ -29,6 +32,7 @@ fs_apt_get python3-venv
 
 if [[ -d ~/.emacs.d/elpy-venv ]]
 then
+    pip3 uninstall rope jedi flake8 autopep8 yapf black
     rm -rfv ~/.emacs.d/elpy-venv
 fi
 
